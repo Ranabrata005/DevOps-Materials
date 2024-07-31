@@ -1,0 +1,62 @@
+Container-to-Container:
+-----------------------
+
+#kubectl get pods -o wide  [List Ips of pods]
+
+creating two containers in the same pod
+#vi two-containers.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: two-containers
+spec:
+  containers:
+  - name: busybox1
+    image: busybox
+    command:
+       - sleep
+       - "3600"
+  - name: busybox2
+    image: busybox
+    command:
+      - sleep
+      - "3600"
+#kubectl create -f two-containers.yaml
+#kubectl exec -it two-containers -c busybox1 /bin/sh [connect first container]
+$ip a
+$netstat -ln
+$curl localhost:80
+
+#kubectl exec -it two-containers -c busybox2 /bin/sh [connect second container]
+#ip a
+$netstat -ln
+$curl localhost:80
+#kubectl logs two-containers -c nginx
+
+NOTE: Both container ip address are same with in the pod.
+
+
+
+POD-TO-POD VERIFICATION:
+-----------------------
+
+Create a pod1:
+#kubectl run nginx1 --image=nginx
+
+Create a pod2:
+#kubectl run nginx2 --image=nginx
+
+
+#kubectl get pods
+
+#kubectl describe pod nginx1|grep -i ip   [Verify both pods ip address]
+#kubectl describe pod nginx2|grep -i ip
+
+Connect Pod1:
+#kubectl exec -it nginx1 -- bash
+        #apt-get update -y
+        #apt-get install net-tools -y
+        #ifconfig
+        #apt-get install iputils-ping -y
+        #ping nginx2-ip-address
+

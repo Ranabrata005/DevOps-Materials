@@ -1,0 +1,135 @@
+Deployments:
+------------
+A Deployment provides declarative updates for Pods and ReplicaSets.
+
+Creating a deployment:
+----------------------
+#vim deploymens.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+
+
+
+#kubectl create -f deployments.yaml
+#kubectl get pods
+#kubectl rollout status deployment/nginxdeployment    [To check rollout status]
+#kubectl get rs     [To check ReplicaSet ( rs ) created by the Deployment]
+#kubectl get pods --showlabels  [To check labels automatically generated for each pod]
+
+
+Create the Deployment by running the following command:
+#kubectl apply -f https://k8s.io/examples/controllers/nginx-deployment.yaml
+#kubectl get deployments
+
+To see the Deployment rollout status:
+#kubectl rollout status deployment/nginxdeployment
+
+
+To see the ReplicaSet ( rs ) created by the Deployment:
+#kubectl get rs
+
+To see the labels automatically generated for each Pod:
+#kubectl get pods --showlabels
+
+
+
+Updating a Deployment:
+----------------------
+update the nginx Pods to use the nginx:1.16.1 image instead of the nginx:1.14.2 image:
+#kubectl set image deployment.v1.apps/nginx-deployment nginx=nginx:1.16.1
+    (or)
+#kubectl set image deployment/nginx-deployment nginx=nginx:1.16.1
+
+#kubectl rollout status deployment/nginx-deployment
+#kubectl get rs
+#kubectl get pods
+#kubectl describe deployments
+ 
+
+
+Rolling Back a Deployment:
+--------------------------
+Sometimes, you may want to rollback a Deployment; for example, when the Deployment is not stable, such as crash looping.
+#kubectl rollout status deployment/nginx-deployment  
+
+Checking Rollout History of a Deployment:
+-----------------------------------------
+
+First, check the revisions of this Deployment:
+#kubectl rollout history deployment/nginx-deployment
+
+To see the details of each revision, run:
+#kubectl rollout history deployment/nginx-deployment --revision=2
+
+
+
+
+Rolling Back to a Previous Revision:
+#kubectl rollout undo deployment/nginx-deployment
+
+(or)
+
+Alternatively, you can rollback to a specific revision:
+#kubectl rollout undo deployment/nginx-deployment --to-revision=2
+
+#kubectl describe deployment nginx-deployment
+
+
+Scaling a Deployment:
+---------------------
+#kubectl scale deployment/nginx-deployment --replicas=10
+#kubectl get deploy
+#kubectl get rs
+
+
+
+Pausing and Resuming a rollout of a Deployment:
+-----------------------------------------------
+#kubectl get deploy
+#kubectl get rs
+#kubectl rollout pause deployment/nginx-deployment  [Pause the deployment]
+#kubectl set image deployment/nginx-deployment nginx=nginx:1.16.1
+#kubectl rollout history deployment/nginx-deployment  [Notice that no new rollout started]
+#kubectl get rs
+#kubectl set resources deployment/nginx-deployment -c=nginx --limits=cpu=200m,memory=512Mi  [update the resources]
+
+resume the Deployment rollout and observe a new ReplicaSet coming up with all the new updates:
+#kubectl rollout resume deployment/nginx-deployment
+#kubectl get rs
+#kubectl rollout status deployment/nginx-deployment
+
+
+Delete a Deployment:
+-------------------
+#kubectl get deployments
+#kubectl get rs
+#kubectl delete deployment <deployment-name>
+
+
+
+
+
+
+
+
+
+

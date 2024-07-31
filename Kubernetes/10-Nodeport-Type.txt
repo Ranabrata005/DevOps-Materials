@@ -1,0 +1,104 @@
+NODEPORT SERVICE: 
+-----------------
+A node port exposes the service on a static port on the node IP address. 
+NodePorts are in the 30000-32767 range by default.
+#vi nodeport-deployments.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-app
+  template:
+    metadata:
+      labels:
+        app: nginx-app
+    spec:
+      containers:
+      - name: nginx-np-container
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+
+#kubectl create -f deployment.yaml
+#kubectl get deployments
+
+
+#vi nodeport-services.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service-nodeport
+  labels:
+    app: nginx-app
+spec:
+  type: NodePort
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    nodePort: 31000
+  selector:
+    app: nginx-app
+
+
+#kubectl create -f service.yaml
+#kubectl get services
+#kubectl describe services/servicename
+#curl http://10.10.10.12:31000
+
+#########################################################################
+
+Creating a service for an application running in two pods:
+#vi hello-application.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world
+spec:
+  selector:
+    matchLabels:
+      run: load-balancer-example
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        run: load-balancer-example
+    spec:
+      containers:
+        - name: hello-world
+          image: gcr.io/google-samples/node-hello:1.0
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+#kubectl create -f hello-application.yaml
+#kubectl get deployments hello-world
+#kubectl describe deployments hello-world
+
+Display information about your ReplicaSet objects:
+#kubectl get replicasets
+#kubectl describe replicasets
+
+Create a Service object that exposes the deployment:
+#kubectl expose deployment hello-world --type=NodePort --name=example-service
+
+Display information about the Service:
+#kubectl describe services example-service
+
+List the pods that are running the Hello World application:
+#kubectl get pods --selector="run=load-balancer-example" --output=wide
+
+#curl http://<public-node-ip>:<node-port>
+
+####################################################################################
+Cleaning up:
+------------
+To delete the Service, enter this command:
+#kubectl delete services example-service
+
+#kubectl delete deployment hello-world

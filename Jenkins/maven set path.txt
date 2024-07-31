@@ -1,0 +1,7 @@
+M2_HOME=/opt/maven3
+M2=/opt/maven3/bin
+export PATH=$PATH:$M2_HOME:$M2
+
+
+-----Create Project-----
+mvn archetype:generate -DgroupId=sysgeeks.app -DartifactId=/opt/maven-app -DarchetypeArtifactId=maven-archetype-quickstart -Dinteractivemode=false
